@@ -11,7 +11,7 @@ import { columns } from "./columns";
 import { styles } from "./styles";
 import { useCallback, useEffect, useState } from "react";
 
-const ViewApplications = () => {
+const ApplicationsPage = () => {
     const isSignedIn = useAppSelector((state) => state.user.isSignedIn);
 
     const [applications, setApplications] = useState<any>();
@@ -82,4 +82,4 @@ const ViewApplications = () => {
     );
 };
 
-export default ViewApplications;
+export default ApplicationsPage;

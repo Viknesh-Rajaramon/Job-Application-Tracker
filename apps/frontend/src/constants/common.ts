@@ -11,8 +11,8 @@ export const sidebarMenu: SidebarMenu[] = [
         route: route.addApplication.path,
     },
     {
-        name: "View Applications",
-        route: route.viewApplication.path,
+        name: "Applications",
+        route: route.applications.path,
     },
     {
         name: "Sign Out",
