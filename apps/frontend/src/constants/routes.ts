@@ -3,7 +3,7 @@ import { JSX } from "react/jsx-runtime";
 import AddApplication from "../pages/add-application";
 import Dashboard from "../pages/dashboard";
 import SignIn from "../pages/sign-in";
-import ViewApplications from "../pages/view-applications";
+import Applications from "../pages/applications";
 
 type Route = {
     [key: string]: {
@@ -26,9 +26,9 @@ export const route: Route = {
         path: "/add",
         component: AddApplication,
     },
-    viewApplication: {
+    applications: {
         path: "/applications",
-        component: ViewApplications,
+        component: Applications,
     },
 };
 
@@ -36,7 +36,7 @@ const routesData = {
     defaultRoutes: [
         route.dashboard,
         route.addApplication,
-        route.viewApplication,
+        route.applications,
     ],
     authRoutes: [route.signIn],
 };
