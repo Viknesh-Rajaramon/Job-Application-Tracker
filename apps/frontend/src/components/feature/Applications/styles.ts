@@ -1,6 +1,12 @@
 import { Styles } from "../../../types/common";
 
 export const styles: Styles = {
+    tableWrapper: {
+        display: "flex",
+        flexDirection: "column",
+        flexBasis: "100%"
+    },
+    
     heading: {
         fontSize: "25px",
         fontWeight: "bold",
@@ -8,14 +14,44 @@ export const styles: Styles = {
         paddingBottom: "20px",
     },
 
+    topbar: {
+        display: "flex",
+    },
+
     searchBar: {
-        width: "50%",
+        width: "100%",
         marginBottom: "15px",
     },
 
-    emptyBg: {
+    btnWrapper: {
+        display: "flex",
+        justifyContent: "end",
+        alignSelf: "center",
         width: "100%",
-        height: "calc(100vh - 90px)",
-        backgroundColor: "custom.background.lightGray"
+        "& .MuiSvgIcon-root": {
+            fontSize: "1.2rem",
+        },
+    },
+
+    btn: {
+        fontSize: "14px",
+        minWidth: "150px",
+        margin: "10px 0",
+        height: "28px",
+        backgroundColor: "primary.dark",
+    },
+
+    formBtnWrapper: {
+        position: "relative",
+    },
+
+    tableLink: {
+        color: "primary.main",
+        cursor: "pointer",
+        textDecoration: "underline",
+        maxWidth: "130px",
+        textOverflow: "ellipsis",
+        overflow: "hidden",
+        whiteSpace: "nowrap",
     },
 };

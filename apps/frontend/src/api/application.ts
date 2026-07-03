@@ -19,3 +19,13 @@ export const getAllApplications = ({
 export const createApplication = (data: any) => {
     return adminInstance.post("/applications", data);
 };
+
+export const updateApplicationById = async ({
+    applicationId,
+    updatedData,
+}: {
+    applicationId: string;
+    updatedData: any;
+}) => {
+    return adminInstance.put(`/applications/${applicationId}`, updatedData);
+};
