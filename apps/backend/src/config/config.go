@@ -19,13 +19,14 @@ const PRODUCTION = "production"
 const SessionCookieName = "job-tracker-sid"
 
 type DBConf struct {
-	Host      string
-	IsPSCHost int
-	Port      int
-	User      string
-	Name      string
-	Password  string
-	AppName   string
+	Host        string
+	IsPSCHost   int
+	Port        int
+	User        string
+	Name        string
+	Password    string
+	AppName     string
+	Certificate string
 }
 
 type Configuration struct {
@@ -46,12 +47,12 @@ type Services struct {
 var configuration *Configuration
 var services *Services = nil
 
-var SupabaseDefaultDBParams = DBConf{
+var SinglestoreDefaultDBParams = DBConf{
 	Host:     "localhost",
 	Port:     5000,
-	User:     "supabase",
-	Name:     "supabase",
-	Password: "supabase",
+	User:     "",
+	Name:     "",
+	Password: "",
 }
 
 func IsConfigInitialized() bool {
@@ -131,9 +132,9 @@ func InitConf(c *Configuration) {
 	configuration = c
 }
 
-func GetSupabaseDSNString(dbConf *DBConf) string {
+func GetSinglestoreDSNString(dbConf *DBConf) string {
 	if dbConf.User == "" || dbConf.Password == "" || dbConf.Name == "" || dbConf.Host == "" || dbConf.Port == 0 {
-		log.WithField("db_config", dbConf).Fatal("Invalid supabase db config.")
+		log.WithField("db_config", dbConf).Fatal("Invalid singlestore db config.")
 	}
 
 	return fmt.Sprintf(
@@ -156,19 +157,19 @@ func InitDB(config Configuration) error {
 	}
 
 	dbConf := config.DBInfo
-	dsn := GetSupabaseDSNString(&dbConf)
-	supabaseDB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	dsn := GetSinglestoreDSNString(&dbConf)
+	singlestoreDB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.WithError(err).Error("Failed connecting to supabase.")
+		log.WithError(err).Error("Failed connecting to singlestore.")
 		return err
 	}
 
-	log.Info("Supabase DB Service initialized.")
+	log.Info("singlestore DB Service initialized.")
 
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 
-	services.Db = supabaseDB
+	services.Db = singlestoreDB
 	services.DBContext = &ctx
 	services.DBContextCancel = &cancel
 

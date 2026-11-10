@@ -1,4 +1,4 @@
-package supabase
+package singlestore
 
 import (
 	"net/http"
@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (store *Supabase) GetUserByEmail(email string) (*model.User, int) {
+func (store *Singlestore) GetUserByEmail(email string) (*model.User, int) {
 	if email == "" {
 		log.Error("GetUserByEmail failed. Email not provided.")
 		return nil, http.StatusBadRequest
@@ -37,7 +37,7 @@ func (store *Supabase) GetUserByEmail(email string) (*model.User, int) {
 	return &user, http.StatusOK
 }
 
-func (store *Supabase) GetUserByID(id string) (*model.User, int) {
+func (store *Singlestore) GetUserByID(id string) (*model.User, int) {
 	if id == "" {
 		return nil, http.StatusBadRequest
 	}
@@ -86,7 +86,7 @@ func updateUser(userID string, options ...model.Option) int {
 	return http.StatusAccepted
 }
 
-func (store *Supabase) UpdateUserLastLoginInfo(userID string, ts time.Time) int {
+func (store *Singlestore) UpdateUserLastLoginInfo(userID string, ts time.Time) int {
 	logFields := log.Fields{
 		"user_id": userID,
 		"ts":      ts,
@@ -100,7 +100,7 @@ func (store *Supabase) UpdateUserLastLoginInfo(userID string, ts time.Time) int 
 	return updateUser(userID, model.LastLoggedInAt(ts))
 }
 
-func (store *Supabase) UpdateUserLastLoggedOut(userID string, timestamp int64) int {
+func (store *Singlestore) UpdateUserLastLoggedOut(userID string, timestamp int64) int {
 	logFields := log.Fields{
 		"user_id":   userID,
 		"timestamp": timestamp,
@@ -114,7 +114,7 @@ func (store *Supabase) UpdateUserLastLoggedOut(userID string, timestamp int64) i
 	return updateUser(userID, model.LastLoggedOut(timestamp))
 }
 
-func (store *Supabase) CreateUser(user *model.User) (*model.User, int) {
+func (store *Singlestore) CreateUser(user *model.User) (*model.User, int) {
 	if user.Email == "" {
 		log.Error("CreateUser failed. Email not provided.")
 		return nil, http.StatusBadRequest
