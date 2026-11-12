@@ -3,7 +3,7 @@ package singlestore
 import (
 	C "backend/config"
 	"backend/model/model"
-	"errors"
+
 	"fmt"
 	"net/http"
 
@@ -46,16 +46,15 @@ func (store *Singlestore) GetDashboardStats(userID string, timestampType string)
 }
 
 func getSelectTimestampByType(timestampType string) string {
-	var selectStr string
-	if timestampType == model.GroupByTimestampWeek {
-		selectStr = fmt.Sprintf("DATE_TRUNC('week', created_at)::date::text")
-	} else if timestampType == model.GroupByTimestampMonth {
-		selectStr = fmt.Sprintf("DATE_TRUNC('month', created_at)::date::text")
-	} else {
-		selectStr = fmt.Sprintf("created_at::date::text")
+	switch timestampType {
+	case model.GroupByTimestampWeek:
+		return "DATE_FORMAT(DATE_TRUNC('week', created_at), '%Y-%m-%d')"
+	case model.GroupByTimestampMonth:
+		return "DATE_FORMAT(DATE_TRUNC('month', created_at), '%Y-%m-%d')"
+	default:
+		return "DATE_FORMAT(created_at, '%Y-%m-%d')"
 	}
 
-	return selectStr
 }
 
 func joinWithComma(x ...string) string {
@@ -81,35 +80,36 @@ func appendStatement(x, y string) string {
 	return fmt.Sprintf("%s %s", x, y)
 }
 
-func getQuery(qStmnt *string, addSelecStmnt string) error {
+func getQuery(addSelecStmnt string) string {
 	if addSelecStmnt == "" {
-		return errors.New("invalid select on applications filter")
+		return ""
 	}
 
-	rStmnt := "SELECT " + addSelecStmnt + " FROM applications"
-	rStmnt = appendStatement(rStmnt, fmt.Sprintf("WHERE user_id = ?"))
-	rStmnt = appendStatement(rStmnt, fmt.Sprintf("GROUP BY 1"))
-	rStmnt = appendStatement(rStmnt, fmt.Sprintf("ORDER BY 1"))
+	qStmnt := "SELECT " + addSelecStmnt + " FROM applications"
+	qStmnt = appendStatement(qStmnt, fmt.Sprintf("WHERE user_id = ?"))
+	qStmnt = appendStatement(qStmnt, fmt.Sprintf("GROUP BY 1"))
+	qStmnt = appendStatement(qStmnt, fmt.Sprintf("ORDER BY 1"))
 
-	*qStmnt = appendStatement(*qStmnt, rStmnt)
-
-	return nil
+	return qStmnt
 }
 
 func (store *Singlestore) GetApplicationTrend(userID string, groupByTimestamp string) ([]model.TrendPoint, int) {
+	logCtx := log.WithFields(log.Fields{
+		"user_id":            userID,
+		"group_by_timestamp": groupByTimestamp,
+	})
+
 	if userID == "" {
-		log.WithField("user_id", userID).Error("User id empty in GetApplicationTrend.")
+		logCtx.Error("User id empty in GetApplicationTrend.")
 		return nil, http.StatusBadRequest
 	}
 
-	var qSelect string
-	qSelect = joinWithComma(qSelect, fmt.Sprintf("%s as %s", getSelectTimestampByType(groupByTimestamp), model.AliasDate))
+	qSelect := fmt.Sprintf("%s as %s", getSelectTimestampByType(groupByTimestamp), model.AliasDate)
 	qSelect = joinWithComma(qSelect, fmt.Sprintf("COUNT(*) AS %s", model.AliasCount))
 
-	var qStmnt string
-	getQuery(&qStmnt, qSelect)
+	qStmnt := getQuery(qSelect)
 	if qStmnt == "" {
-		log.WithField("user_id", userID).Error("Failed to get query in GetApplicationTrend.")
+		logCtx.Error("Failed to get query in GetApplicationTrend.")
 		return nil, http.StatusInternalServerError
 	}
 
