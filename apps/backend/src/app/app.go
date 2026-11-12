@@ -16,11 +16,12 @@ func main() {
 	env := flag.String("env", "development", "")
 	port := flag.Int("api_http_port", 8080, "")
 
-	dbHost := flag.String("db_host", C.SupabaseDefaultDBParams.Host, "")
-	dbPort := flag.Int("db_port", C.SupabaseDefaultDBParams.Port, "")
-	dbUser := flag.String("db_user", C.SupabaseDefaultDBParams.User, "")
-	dbName := flag.String("db_name", C.SupabaseDefaultDBParams.Name, "")
-	dbPass := flag.String("db_pass", C.SupabaseDefaultDBParams.Password, "")
+	dbHost := flag.String("db_host", C.SinglestoreDefaultDBParams.Host, "")
+	dbPort := flag.Int("db_port", C.SinglestoreDefaultDBParams.Port, "")
+	dbUser := flag.String("db_user", C.SinglestoreDefaultDBParams.User, "")
+	dbName := flag.String("db_name", C.SinglestoreDefaultDBParams.Name, "")
+	dbPass := flag.String("db_pass", C.SinglestoreDefaultDBParams.Password, "")
+	dbCert := flag.String("db_cert", "", "")
 
 	apiDomain := flag.String("api_domain", "localhost:8080", "")
 	appDomain := flag.String("app_domain", "localhost:3000", "")
@@ -31,11 +32,12 @@ func main() {
 		Env:  *env,
 		Port: *port,
 		DBInfo: C.DBConf{
-			Host:     *dbHost,
-			Port:     *dbPort,
-			User:     *dbUser,
-			Name:     *dbName,
-			Password: *dbPass,
+			Host:        *dbHost,
+			Port:        *dbPort,
+			User:        *dbUser,
+			Name:        *dbName,
+			Password:    *dbPass,
+			Certificate: *dbCert,
 		},
 		ApiDomain: *apiDomain,
 		AppDomain: *appDomain,

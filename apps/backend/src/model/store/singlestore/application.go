@@ -1,4 +1,4 @@
-package supabase
+package singlestore
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (store *Supabase) CreateApplication(application model.Application) int {
+func (store *Singlestore) CreateApplication(application model.Application) int {
 	application.Id = U.GetUUID()
 
 	db := C.GetServices().Db
@@ -42,7 +42,7 @@ func getSortOrderQuery(sortBy string, order int) string {
 	return fmt.Sprintf("%s %s", sortBy, sortOrder)
 }
 
-func (store *Supabase) GetApplications(userID string, page int, perPage int, search string, sortBy string, order int) ([]model.Application, int) {
+func (store *Singlestore) GetApplications(userID string, page int, perPage int, search string, sortBy string, order int) ([]model.Application, int) {
 	logFields := log.Fields{
 		"user_id": userID,
 		"page":    page,
@@ -81,7 +81,7 @@ func (store *Supabase) GetApplications(userID string, page int, perPage int, sea
 	return applications, http.StatusFound
 }
 
-func (store *Supabase) GetApplicationByID(userID, applicationID string) (*model.Application, int) {
+func (store *Singlestore) GetApplicationByID(userID, applicationID string) (*model.Application, int) {
 	if userID == "" || applicationID == "" {
 		return nil, http.StatusBadRequest
 	}
@@ -107,7 +107,7 @@ func (store *Supabase) GetApplicationByID(userID, applicationID string) (*model.
 	return &application, http.StatusOK
 }
 
-func (store *Supabase) UpdateApplicationByID(userID, applicationID string, application *model.Application) int {
+func (store *Singlestore) UpdateApplicationByID(userID, applicationID string, application *model.Application) int {
 	if userID == "" || applicationID == "" {
 		return http.StatusBadRequest
 	}
@@ -146,7 +146,7 @@ func searchQueryForApplications(search string) (string, []interface{}) {
 	return whereStmt, whereParams
 }
 
-func (store *Supabase) GetApplicationCountByUserID(userID string, search string) (int64, int) {
+func (store *Singlestore) GetApplicationCountByUserID(userID string, search string) (int64, int) {
 	if userID == "" {
 		return 0, http.StatusBadRequest
 	}
@@ -171,7 +171,7 @@ func (store *Supabase) GetApplicationCountByUserID(userID string, search string)
 	return count, http.StatusOK
 }
 
-func (store *Supabase) GetApplicationCountByStatus(userID string) (map[string]int64, int) {
+func (store *Singlestore) GetApplicationCountByStatus(userID string) (map[string]int64, int) {
 	db := C.GetServices().Db
 	rows, err := db.Model(&model.Application{}).Where("user_id = ?", userID).Group("status").Select("status, count(*)").Rows()
 	if err != nil {

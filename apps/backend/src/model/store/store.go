@@ -2,11 +2,11 @@ package store
 
 import (
 	"backend/model"
-	storeSupabase "backend/model/store/supabase"
+	storeSinglestore "backend/model/store/singlestore"
 )
 
 func GetStore() model.Model {
 	var store model.Model
-	store = &storeSupabase.Supabase{}
+	store = &storeSinglestore.Singlestore{}
 	return store
 }

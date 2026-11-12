@@ -2,12 +2,18 @@ package config
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io"
+	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
+	mysqldriver "github.com/go-sql-driver/mysql"
 	log "github.com/sirupsen/logrus"
-	"gorm.io/driver/postgres"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -19,13 +25,14 @@ const PRODUCTION = "production"
 const SessionCookieName = "job-tracker-sid"
 
 type DBConf struct {
-	Host      string
-	IsPSCHost int
-	Port      int
-	User      string
-	Name      string
-	Password  string
-	AppName   string
+	Host        string
+	IsPSCHost   int
+	Port        int
+	User        string
+	Name        string
+	Password    string
+	AppName     string
+	Certificate string
 }
 
 type Configuration struct {
@@ -46,12 +53,12 @@ type Services struct {
 var configuration *Configuration
 var services *Services = nil
 
-var SupabaseDefaultDBParams = DBConf{
+var SinglestoreDefaultDBParams = DBConf{
 	Host:     "localhost",
 	Port:     5000,
-	User:     "supabase",
-	Name:     "supabase",
-	Password: "supabase",
+	User:     "",
+	Name:     "",
+	Password: "",
 }
 
 func IsConfigInitialized() bool {
@@ -131,19 +138,63 @@ func InitConf(c *Configuration) {
 	configuration = c
 }
 
-func GetSupabaseDSNString(dbConf *DBConf) string {
-	if dbConf.User == "" || dbConf.Password == "" || dbConf.Name == "" || dbConf.Host == "" || dbConf.Port == 0 {
-		log.WithField("db_config", dbConf).Fatal("Invalid supabase db config.")
+func GetSinglestoreCACertificate() (string, error) {
+	resp, err := http.Get("https://portal.singlestore.com/static/ca/singlestore_bundle.pem")
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
 	}
 
-	return fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s dbname=%s sslmode=require",
-		dbConf.Host,
-		dbConf.Port,
-		dbConf.User,
-		dbConf.Password,
-		dbConf.Name,
-	)
+	return string(body), nil
+}
+
+func GetSinglestoreDSNString(dbConf *DBConf) string {
+	if dbConf.User == "" || dbConf.Password == "" || dbConf.Name == "" || dbConf.Host == "" || dbConf.Port == 0 {
+		log.WithField("db_config", dbConf).Fatal("Invalid singlestore db config.")
+	}
+
+	dbConfig := mysqldriver.Config{
+		User:                 dbConf.User,
+		Passwd:               dbConf.Password,
+		Net:                  "tcp",
+		Addr:                 fmt.Sprintf("%s:%d", dbConf.Host, dbConf.Port),
+		DBName:               dbConf.Name,
+		Params:               map[string]string{"charset": "utf8mb4"},
+		Loc:                  time.Local,
+		AllowNativePasswords: true,
+		ParseTime:            true,
+	}
+
+	if dbConf.Certificate == "" {
+		cert, err := GetSinglestoreCACertificate()
+		if err != nil {
+			log.WithError(err).Fatal("Not able to get CA Certificate")
+		}
+
+		dbConf.Certificate = cert
+	}
+
+	const tlsConfigname = "singlestore"
+
+	// Register certificate.
+	rootCertPool := x509.NewCertPool()
+	if ok := rootCertPool.AppendCertsFromPEM([]byte(dbConf.Certificate)); !ok {
+		log.Fatal("Failed to add certificate for memsql connection.")
+	}
+
+	mysqldriver.RegisterTLSConfig(tlsConfigname, &tls.Config{RootCAs: rootCertPool})
+
+	// use the registered certificate.
+	dbConfig.TLSConfig = tlsConfigname
+
+	log.Info("Using SSL for Singlestore connections")
+
+	return dbConfig.FormatDSN()
 }
 
 func InitDB(config Configuration) error {
@@ -156,19 +207,18 @@ func InitDB(config Configuration) error {
 	}
 
 	dbConf := config.DBInfo
-	dsn := GetSupabaseDSNString(&dbConf)
-	supabaseDB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	singlestoreDB, err := gorm.Open(mysql.Open(GetSinglestoreDSNString(&dbConf)), &gorm.Config{})
 	if err != nil {
-		log.WithError(err).Error("Failed connecting to supabase.")
+		log.WithError(err).Error("Failed connecting to singlestore.")
 		return err
 	}
 
-	log.Info("Supabase DB Service initialized.")
+	log.Info("Singlestore DB Service initialized")
 
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 
-	services.Db = supabaseDB
+	services.Db = singlestoreDB
 	services.DBContext = &ctx
 	services.DBContextCancel = &cancel
 

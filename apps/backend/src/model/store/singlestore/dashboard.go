@@ -1,4 +1,4 @@
-package supabase
+package singlestore
 
 import (
 	C "backend/config"
@@ -10,7 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (store *Supabase) GetDashboardStats(userID string, timestampType string) (*model.DashBoard, int) {
+func (store *Singlestore) GetDashboardStats(userID string, timestampType string) (*model.DashBoard, int) {
 	if userID == "" {
 		log.WithField("user_id", userID).Error("User id empty in GetDashboardStats.")
 		return nil, http.StatusBadRequest
@@ -96,7 +96,7 @@ func getQuery(qStmnt *string, addSelecStmnt string) error {
 	return nil
 }
 
-func (store *Supabase) GetApplicationTrend(userID string, groupByTimestamp string) ([]model.TrendPoint, int) {
+func (store *Singlestore) GetApplicationTrend(userID string, groupByTimestamp string) ([]model.TrendPoint, int) {
 	if userID == "" {
 		log.WithField("user_id", userID).Error("User id empty in GetApplicationTrend.")
 		return nil, http.StatusBadRequest
