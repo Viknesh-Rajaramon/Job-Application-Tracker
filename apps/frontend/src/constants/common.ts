@@ -7,10 +7,6 @@ export const sidebarMenu: SidebarMenu[] = [
         route: route.dashboard.path,
     },
     {
-        name: "Add Application",
-        route: route.addApplication.path,
-    },
-    {
         name: "Applications",
         route: route.applications.path,
     },
