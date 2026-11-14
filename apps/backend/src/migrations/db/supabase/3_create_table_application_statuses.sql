@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS application_status (
+CREATE TABLE IF NOT EXISTS application_statuses (
     application_id TEXT NOT NULL,
     status VARCHAR(30) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
