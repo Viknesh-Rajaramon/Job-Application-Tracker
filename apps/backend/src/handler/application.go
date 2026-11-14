@@ -34,6 +34,7 @@ func CreateApplicationHandler(c *gin.Context) {
 		}
 
 		c.AbortWithStatusJSON(status, gin.H{"error": "Failed to create application."})
+		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Application created successfully."})
