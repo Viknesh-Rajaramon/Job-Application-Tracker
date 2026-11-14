@@ -8,3 +8,9 @@ export type Application = {
   link: string;
   date_applied?: string;
 };
+
+export type ApplicationStatusHistory = {
+  application_id: string;
+  status: string;
+  created_at: string;
+};

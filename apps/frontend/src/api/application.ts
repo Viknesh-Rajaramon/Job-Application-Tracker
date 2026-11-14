@@ -29,3 +29,7 @@ export const updateApplicationById = async ({
 }) => {
     return adminInstance.put(`/applications/${applicationId}`, updatedData);
 };
+
+export const getApplicationStatuses = (applicationId: string) => {
+    return adminInstance.get(`/applications/${applicationId}/statuses`);
+};
