@@ -28,6 +28,7 @@ const Select = <T extends FieldValues>({
     label,
     fullWidth = true,
     errors,
+    disabled = false,
     customStyle,
     variant = "outlined",
     options,
@@ -52,6 +53,7 @@ const Select = <T extends FieldValues>({
             <Controller
                 name={name}
                 control={control}
+                disabled={disabled}
                 rules={rules}
                 defaultValue={defaultValue}
                 render={({ field }) => (
@@ -66,6 +68,7 @@ const Select = <T extends FieldValues>({
                             onChange={field.onChange}
                             inputRef={field.ref}
                             onBlur={field.onBlur}
+                            disabled={disabled}
                             error={Boolean(error)}
                             {...rest}
                         >

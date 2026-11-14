@@ -238,7 +238,7 @@ const ApplicationForm = ({
                         name="company"
                         label="Company"
                         control={control}
-                        readOnly={readOnly}
+                        disabled={readOnly}
                         errors={errors}
                         rules={{
                             required: errorMessage.required,
@@ -250,7 +250,7 @@ const ApplicationForm = ({
                         name="role"
                         label="Role"
                         control={control}
-                        readOnly={readOnly}
+                        disabled={readOnly}
                         errors={errors}
                         rules={{
                             required: errorMessage.required,
@@ -262,7 +262,7 @@ const ApplicationForm = ({
                         name="req_id"
                         label="Req ID"
                         control={control}
-                        readOnly={readOnly}
+                        disabled={readOnly}
                         errors={errors}
                     />
 
@@ -271,7 +271,7 @@ const ApplicationForm = ({
                         name="location"
                         label="Location"
                         control={control}
-                        readOnly={readOnly}
+                        disabled={readOnly}
                         errors={errors}
                         rules={{
                             required: errorMessage.required,
@@ -284,6 +284,7 @@ const ApplicationForm = ({
                         label="Status"
                         options={statuses}
                         control={control}
+                        disabled={readOnly}
                         errors={errors}
                         rules={{
                             required: errorMessage.required,
@@ -295,7 +296,7 @@ const ApplicationForm = ({
                         name="link"
                         label="Link"
                         control={control}
-                        readOnly={readOnly}
+                        disabled={readOnly}
                         errors={errors}
                         rules={{
                             required: errorMessage.required,
