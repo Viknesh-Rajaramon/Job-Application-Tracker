@@ -66,7 +66,6 @@ const Input = <T extends FieldValues>({
 	variant = "standard",
 	className,
 	isValid = false,
-	readOnly = false,
 	autoFocus = false,
 	customStyle,
 	...rest
@@ -107,12 +106,11 @@ const Input = <T extends FieldValues>({
 								onChange={field.onChange}
 								inputRef={field.ref}
 								onBlur={field.onBlur}
-								readOnly={readOnly}
 								placeholder={placeholder}
 								autoFocus={autoFocus}
 								onKeyDown={isAlpha ? preventNumberInput : undefined}
 								inputProps={{ maxLength, ...inputProps }}
-								style={{ background: readOnly ? "none" : "white" }}
+								style={{ background: disabled ? "none" : "white" }}
 								startAdornment={
 									showAdornment && adornmentPos === "start" ? (
 										<InputAdornment
