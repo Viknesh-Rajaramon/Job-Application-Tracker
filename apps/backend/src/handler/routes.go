@@ -21,6 +21,7 @@ func InitAppRoutes(r *gin.Engine) {
 	applicationsGroup.GET("", GetApplicationsHandler)
 	applicationsGroup.GET("/:application_id", GetApplicationByIDHandler)
 	applicationsGroup.PUT("/:application_id", EditApplicationByIDHandler)
+	applicationsGroup.GET("/:application_id/statuses", GetApplicationStatusesHandler)
 
 	dashboardGroup := r.Group(ROUTE_DASHBOARD_ROOT)
 	dashboardGroup.Use(mid.SetLoggedInUser())

@@ -15,6 +15,7 @@ import (
 
 func (store *Singlestore) CreateApplication(application model.Application) int {
 	application.Id = U.GetUUID()
+	logCtx := log.WithField("application", application)
 
 	db := C.GetServices().Db
 	err := db.Create(&application).Error
@@ -23,8 +24,14 @@ func (store *Singlestore) CreateApplication(application model.Application) int {
 			return http.StatusConflict
 		}
 
-		log.WithField("application", application).WithError(err).Error("Failed to create application.")
+		logCtx.WithError(err).Error("Failed to create application.")
 		return http.StatusInternalServerError
+	}
+
+	errCode := store.CreateApplicationStatus(application.Id, application.Status)
+	if errCode != http.StatusOK {
+		logCtx.Error("Failed to create application status")
+		return errCode
 	}
 
 	return http.StatusCreated
@@ -118,6 +125,11 @@ func (store *Singlestore) UpdateApplicationByID(userID, applicationID string, ap
 		"application":    *application,
 	})
 
+	existing, status := store.GetApplicationByID(userID, applicationID)
+	if status != http.StatusOK {
+		return status
+	}
+
 	db := C.GetServices().Db
 	updateFields := make(map[string]interface{}, 0)
 	if application.Status != "" {
@@ -129,6 +141,14 @@ func (store *Singlestore) UpdateApplicationByID(userID, applicationID string, ap
 	if err != nil {
 		logCtx.WithError(err).Error("Failed to update application.")
 		return http.StatusInternalServerError
+	}
+
+	if application.Status != "" && application.Status != existing.Status {
+		errCode := store.CreateApplicationStatus(applicationID, application.Status)
+		if errCode != http.StatusOK {
+			logCtx.Error("Failed to create application status")
+			return errCode
+		}
 	}
 
 	return http.StatusOK
