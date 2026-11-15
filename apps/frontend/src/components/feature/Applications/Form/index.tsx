@@ -10,6 +10,7 @@ import SimplePopUp from "../../../common/PopUp/Modal/SimplePopUp";
 import Button from "../../../common/Button";
 import Input from "../../../common/FormComponents/Input";
 import Select from "../../../common/FormComponents/Select";
+import StatusTimeline from "../StatusTimeline";
 import errorMessage from "../../../../constants/errorMessage";
 import { createApplication, updateApplicationById } from "../../../../api/application";
 import { useAppSelector } from "../../../../redux/store";
@@ -304,6 +305,8 @@ const ApplicationForm = ({
                     />
                 </Box>
             </form>
+            
+            {form === "edit" && id && <StatusTimeline applicationId={id} />}
         </Box>
     );
 };
